@@ -126,13 +126,13 @@ def dealNone(X_train, X_test):
     X_test = X_test.fillna(meds)
 
     return X_train, X_test
+preprocessing
 
-
-def dataRegular(X_trainn, X_test):
+def dataRegular(X_train, X_test):
     cols = ['Pclass', 'Age', 'SibSp', 'Parch', 'Fare', 'Sex_male', 'Embarked_Q',
             'Embarked_S']
     sca = preprocessing.StandardScaler()
-    X_train = sca.fit_transform(X_trainn)
+    X_train = sca.fit_transform(X_train)
     X_train = pd.DataFrame(X_train, columns=cols)
     X_test = sca.transform(X_test)
     X_test = pd.DataFrame(X_test, columns=cols)
