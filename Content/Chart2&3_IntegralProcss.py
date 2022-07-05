@@ -85,7 +85,7 @@ def cleanData(df):
     # print(df.isnull().sum())
     # 检查哪些行缺数据
     # mask = df.isnull().any(axis=1)
-    # print(df[mask)
+    # print(df[mask])
     # 查看某个类型变量的选项（dropna=false表示将空值也带上）
     print(df.Sex.value_counts(dropna=False))
 
@@ -98,7 +98,7 @@ def createCh(df):
     # 删除行或列（删除分个别的类-名字、和泄漏乘客生存情况的特征、删除高度正负相关的属性-两个性别属性中的一个）
     df = df.drop(
         columns=['PassengerId', 'Name', 'Ticket', 'Cabin'])
-    # 使用True模式，保证列属性唯一
+    # 将类别变量转为数值变量（使用的是one-hot编码），使用True模式，保证列属性唯一
     df = pd.get_dummies(df, drop_first=True)
     # print(df.columns)
     # 将标签列y和非标签列X划分开（或使用pyjanitor库的get_features_targets）
