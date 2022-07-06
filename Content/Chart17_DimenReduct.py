@@ -10,7 +10,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
-
+from yellowbrick.features.pca import (
+    PCADecomposition,
+)
+import umap
+# import phate
 # 自定义的工具包
 import util
 
@@ -69,32 +73,49 @@ def ralatePlot(pca):
     plt.colorbar()
     plt.savefig('images/mlpr_1703.png', dpi=300)
 
+
 # 绘制柱状图
 def barPlot(pca):
-    fig,ax=plt.subplots(figsize=(8,4))
+    fig, ax = plt.subplots(figsize=(8, 4))
     pd.DataFrame(
-        pca.components_,columns=X.columns
-    ).plot(kind='bar',ax=ax).legend(
-        bbox_to_anchor=(1,1)
+        pca.components_, columns=X.columns
+    ).plot(kind='bar', ax=ax).legend(
+        bbox_to_anchor=(1, 1)
     )
-    fig.savefig('images/mlpr_1704.png',dpi=300)
-
+    fig.savefig('images/mlpr_1704.png', dpi=300)
 
 
 # 筛选出较为重要的特征
 def lmfeaPlot(pca):
     comps = pd.DataFrame(
-        pca.components_, columns = X.columns
+        pca.components_, columns=X.columns
     )
-    min_val=0.5
-    num_components=2
-    pca_cols=set()
+    min_val = 0.5
+    num_components = 2
+    pca_cols = set()
     for i in range(num_components):
         parts = comps.iloc[i][
-            comps.iloc[i].abs()>min_val
-        ]
+            comps.iloc[i].abs() > min_val
+            ]
         pca_cols.update(set(parts.index))
     print(pca_cols)
+
+
+# 用yellowbrick绘制pca三维图
+def triDplot():
+    colors = ['rg'[j] for j in y]
+    pca3_viz = PCADecomposition(
+        projection=3, colors=colors
+    )
+    pca3_viz.fit_transform(X, y)
+    pca3_viz.finalize()
+    fig = plt.gcf()
+    plt.tight_layout()
+    fig.savefig(
+        'images/mlpr_1710.png',
+        dpi=300,
+        bbox_inches='tight',
+    )
 
 
 # pca降维去噪
@@ -118,11 +139,43 @@ def pcaTest():
     # 绘制特征与主成分之间关系的柱状图
     # barPlot(pca)
     # 如果有很多特征，我们想要限制特征数，用代码找出前两个主成分中，权重绝对值至少为0.5的特征
-    lmfeaPlot(pca)
-    #
+    # lmfeaPlot(pca)
+    # 绘制三维图
+    triDplot()
+
+
+# umap降维
+def umapTest():
+    u = umap.UMAP(random_state=42)
+    X_umap = u.fit_transform(
+        StandardScaler().fit_transform(X)
+    )
+    print(X_umap.shape)
+    fig, ax = plt.subplots(figsize=(8, 4))
+    pd.DataFrame(X_umap).plot(
+        kind='scatter',
+        x=0,
+        y=1,
+        ax=ax,
+        c=y,
+        alpha=0.2,
+        cmap='Spectral',
+    )
+    fig.savefig('images/mlpr_1713.png', dpi=300)
+
+
+# phate技术降维 问题？这里的phate包安装不上
+def phateTest():
+    return 1
 
 
 if __name__ == '__main__':
     # PCA(降维技术，可以用来降维，也可以主要作为预处理步骤，以过滤噪声数据中的随机噪声，处理掉线性数据）
     # skl中的pca是个转换器，可用.fit训练它使它学会获取主成分，然后调用.transform将矩阵转为主成分矩阵
     pcaTest()
+    # UMAP( 均匀流行近似和投影，一种使用流形学习的降维技术，尝试保留全局和局部特征）
+    # 使用umap包，归一化特征值，使其落在同一范围内
+    # umapTest()
+    # t-SNE降维技术（该技术计算量大，无法用于大数据集）
+    # PHATE方法（pca和t-SNE的结合）
+    # phateTest()
